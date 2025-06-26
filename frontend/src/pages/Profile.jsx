@@ -15,6 +15,7 @@ export default function Profile() {
   const [chatOpen, setChatOpen] = useState(false);
   const [activeChatTripId, setActiveChatTripId] = useState(null);
   const [activeChatTrip, setActiveChatTrip] = useState(null); 
+  
   useEffect(() => {
     axios.get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
       .then((res) => setUser(res.data.user))
