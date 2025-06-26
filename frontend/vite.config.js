@@ -18,12 +18,12 @@ export default defineConfig({
         theme_color: '#0f172a',
         icons: [
           {
-            src: 'images/jc-logo-192.png',
+            src: 'images/jc-logo.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'images/jc-logo-512.png',
+            src: 'images/jc-logo.png',
             sizes: '512x512',
             type: 'image/png'
           }
