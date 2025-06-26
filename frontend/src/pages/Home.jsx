@@ -14,28 +14,28 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const path = window.location.pathname;
   useEffect(() => {
-    axios
-      .get("/users/profile", { withCredentials: true })
-      .then((res) => {
-        setMyId(res.data.user._id);
-        setUser(res.data.user);
-      })
-      .catch(() => {
-        setMyId(null);
-        setUser(null);
-      });
-  }, []);
+  axios
+    .get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
+    .then((res) => {
+      setMyId(res.data.user._id);
+      setUser(res.data.user);
+    })
+    .catch(() => {
+      setMyId(null);
+      setUser(null);
+    });
+}, []);
 
-  useEffect(() => {
-    setLoading(true);
-    axios
-      .get("/trips/all", { withCredentials: true })
-      .then((res) => {
-        setTrips(res.data.trips || []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  setLoading(true);
+  axios
+    .get(`${API_BASE_URL}/trips/all`, { withCredentials: true })
+    .then((res) => {
+      setTrips(res.data.trips || []);
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
+}, []);
 
   const filteredTrips = trips.filter(
     (trip) =>
@@ -143,7 +143,7 @@ export default function Home() {
           onClick={() => {
             setLoading(true);
             axios
-              .get("/trips/all", { withCredentials: true })
+              .get(`${API_BASE_URL}/trips/all`, { withCredentials: true })
               .then((res) => {
                 setTrips(res.data.trips || []);
                 setLoading(false);
