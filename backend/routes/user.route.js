@@ -22,6 +22,6 @@ router.get('/profile', authMiddleware, userController.getUserProfile);
 router.post('/logout', authMiddleware, userController.logoutUser);
 
 // Save FCM token for the authenticated user
-router.post('/save-fcm-token', authMiddleware, userController.saveFcmToken);
+router.post('/device-token', authMiddleware, userController.saveFcmToken);
 
 module.exports = router;
