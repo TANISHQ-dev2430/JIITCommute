@@ -13,7 +13,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       'http://localhost:5173',
-      'https://jiit-commute.vercel.app'  // ✅ Your deployed frontend
+      'https://jiit-commute.vercel.app'  
     ],
     credentials: true
   }

@@ -53,8 +53,8 @@ module.exports.loginUser = async (req, res, next) => {
 
         res.cookie('token', token, {
             httpOnly: true,
-            sameSite: 'lax', 
-            secure: false    
+            sameSite: 'none', 
+            secure: true    
         });
 
         res.status(200).json({ token, user: { _id: user._id, enrollmentNumber, fullname: user.fullname, batch: user.batch, mobileNo: user.mobileNo } });
