@@ -19,7 +19,7 @@ export default function App() {
     if ("Notification" in window && navigator.serviceWorker) {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
-          getToken(messaging, { vapidKey: 'BHUQ8swB0zZl87Ql1fJOTKd_FdadNKBBbztztfugk_ITutETfMOqB1m7CfewCC8yrjsqxk4W6w6mS6J1yRuiim0' })
+          getToken(messaging, { vapidKey:'BHUQ8swB0zZl87Ql1fJOTKd_FdadNKBBbztztfugk_ITutETfMOqB1m7CfewCC8yrjsqxk4W6w6mS6J1yRuiim0' })
             .then((currentToken) => {
               if (currentToken) {
                 axios.post(
