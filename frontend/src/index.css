@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.cdnfonts.com/css/helvetica-neue-5');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+.react-time-picker,
+.react-time-picker__wrapper {
+  background: #27272a !important; 
+  border-radius: 0.5rem !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.react-time-picker__inputGroup__input {
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 1rem;
+}
+
+.react-time-picker__clock {
+  background: #18181b !important; 
+  border-radius: 1rem;
+}
+
+.react-time-picker__button {
+  filter: invert(1);
+}
+
+body {
+  background: #1B1B1B !important;
+}
+.customtoast{ 
+  width:300px; 
+  height: 80px;
+}
