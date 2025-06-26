@@ -14,11 +14,11 @@ connectToDb();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-frontend-url.vercel.app', // <-- add your deployed frontend URL here
+  'https://jiit-commute.vercel.app', 
 ];
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
+    
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
