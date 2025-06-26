@@ -15,7 +15,7 @@ export default function History() {
   useEffect(() => {
     // Fetch user profile to get userId
     axios
-      .get("/users/profile", { withCredentials: true })
+      .get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
       .then((res) => setUserId(res.data.user._id))
       .catch(() => setUserId(null));
   }, []);
@@ -25,7 +25,7 @@ export default function History() {
     setLoading(true);
     toastId = toast.loading("Loading trip history...", { toastId: "history-loader", autoClose: false });
     axios
-      .get("/trips/history", { withCredentials: true })
+      .get(`${API_BASE_URL}/trips/history`, { withCredentials: true })
       .then((res) => {
         const allTrips = res.data.trips || [];
         // Sort all trips by createdAt descending (most recent first)
