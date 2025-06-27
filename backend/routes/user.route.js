@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middlewares/authMiddleware'); 
+const upload = require('../middlewares/multerProfileImage');
 
 router.post('/register', [
     body('enrollmentNumber').matches(/^[0-9]{1,15}$/).withMessage('Enrollment number must be 1 to 15 digits'),
@@ -23,5 +24,11 @@ router.post('/logout', authMiddleware, userController.logoutUser);
 
 // Save FCM token for the authenticated user
 router.post('/device-token', authMiddleware, userController.saveFcmToken);
+
+// Upload profile image (authenticated)
+router.post('/profile/image', authMiddleware, upload.single('profileImage'), userController.uploadProfileImage);
+
+// Edit name, mobile number, and remove profile image
+router.patch('/profile', authMiddleware, userController.updateUserProfile);
 
 module.exports = router;

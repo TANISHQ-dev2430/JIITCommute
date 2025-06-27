@@ -1,6 +1,10 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/user.model');
 const userService = require('../services/user.service');
+const upload = require('../middlewares/multerProfileImage');
+const cloudinary = require('../services/cloudinary');
+const multer = require('multer');
+const streamifier = require('streamifier');
 
 module.exports.registerUser = async (req, res, next) => {
     const errors = validationResult(req);
@@ -103,5 +107,59 @@ module.exports.saveFcmToken = async (req, res) => {
         res.status(200).json({ message: 'FCM token saved' });
     } catch (err) {
         res.status(500).json({ message: 'Failed to save FCM token' });
+    }
+};
+
+// Upload or update user profile image to Cloudinary
+module.exports.uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        // Upload to Cloudinary using stream
+        const streamUpload = (fileBuffer) => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'jiitcommute/profileImages', resource_type: 'image' },
+                    (error, result) => {
+                        if (result) resolve(result);
+                        else reject(error);
+                    }
+                );
+                streamifier.createReadStream(fileBuffer).pipe(stream);
+            });
+        };
+        const result = await streamUpload(req.file.buffer);
+        await User.findByIdAndUpdate(req.user._id, { profileImage: result.secure_url });
+        res.status(200).json({ message: 'Profile image uploaded', imageUrl: result.secure_url });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// PATCH /users/profile - update name, mobile, or remove profile image
+module.exports.updateUserProfile = async (req, res) => {
+    try {
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        const update = {};
+        if (req.body.fullname) {
+            update["fullname.firstname"] = req.body.fullname.firstname;
+            update["fullname.lastname"] = req.body.fullname.lastname;
+        }
+        if (req.body.mobileNo) {
+            update.mobileNo = req.body.mobileNo;
+        }
+        if (req.body.removeProfileImage) {
+            update.profileImage = null;
+        }
+        const user = await User.findByIdAndUpdate(req.user._id, update, { new: true });
+        res.status(200).json({ user });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

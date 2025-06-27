@@ -3,6 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 const tripController = require('../controllers/trip.controller');
 const chatMessage = require('../models/chatMessage.model');
+const { doneTrip } = require('../controllers/trip.controller');
 
 router.post('/create', authMiddleware, tripController.createTrip);
 router.put('/:id', authMiddleware, tripController.updateTrip);    // Update trip
@@ -20,4 +21,7 @@ router.get('/:tripId/chat', async (req, res) => {
   const messages = await chatMessage.find({ tripId }).populate('sender', 'fullname');
   res.json({ messages });
 });
+router.patch('/done/:id', authMiddleware, doneTrip); // Mark trip as done
+// Add POST /trips endpoint for trip creation (for recreate trip)
+router.post('/', authMiddleware, tripController.createTrip);
 module.exports = router;

@@ -1,8 +1,17 @@
 import { useNavigate } from "react-router-dom";
 
 export default function About() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start bg-cover bg-center font-inter px-4 py-10" style={{ backgroundImage: "url('/images/about-bg.png')", fontFamily: "'Inter', Helvetica, Arial, sans-serif" }}>
+      {/* Back Button */}
+      <img
+        src="/images/back.png"
+        alt="Back"
+        onClick={() => navigate("/landing")}
+        className="absolute top-5 left-5 w-8 h-8 cursor-pointer"
+      />
       {/* Overview Section */}
       <div className="w-full max-w-2xl mx-auto mb-8">
         <h2 className="text-white text-lg font-semibold mb-4 text-center">Overview</h2>
@@ -88,7 +97,7 @@ export default function About() {
                 <img src="/images/mohnish.jpg" className="rounded-full h-8 w-8" alt="mohnish" />
               </span>
               <span className="text-white font-semibold text-sm">Mohnish</span>
-              <span className="text-white/80 text-xs ml-2">• UI/UX</span>
+              <span className="text-white/80 text-xs ml-2">• UI / UX</span>
             </div>
             <div className="text-white/90 text-xs">Crafted a clean, student-friendly design and worked on optimizing user experience across screens.</div>
             <a href="https://www.linkedin.com/in/mohnish-kumar-a250a7223/" target="_blank" rel="noopener noreferrer" className="absolute bottom-2 right-2">
@@ -97,9 +106,15 @@ export default function About() {
           </div>
         </div>
       </div>
-        <div className="w-full text-center text-white/60 text-xs mt-8 mb-2 select-none">
-            © {new Date().getFullYear()} JIITCommute. All rights reserved.
-        </div>
+      <div className="w-full text-center text-white/60 text-xs mt-8 mb-2 select-none">
+        © {new Date().getFullYear()} JIITCommute. All rights reserved.
+      </div>
+      <div className="text-white/60 text-xs flex items-center justify-center gap-1">
+        jiitcommute@gmail.com 
+        <a href="mailto:jiitcommute@gmail.com">
+          <img src="/images/letter.png" className="h-6 w-6" alt="mail-icon"/>
+        </a>
+      </div>
     </div>
   );
 }

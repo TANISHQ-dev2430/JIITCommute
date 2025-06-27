@@ -186,8 +186,13 @@ export default function Host() {
         >
           {editingTrip ? "Update Trip" : "Create Trip"}
         </button>
-        <div className="text-center text-gray-400 text-xs mt-4 mb-3">
-          <p>Hosts can manage only 1 active trip at a time. Please complete your current trip to post a new one. Trips auto-complete 1 hour after departure.</p>
+        <div className="bg-yellow-100 text-yellow-900 rounded-lg p-3 mb-4 text-sm border border-yellow-300">
+          <b>How trip auto-deletion works:</b>
+          <ul className="list-disc pl-5 mt-2">
+            <li><b>2 hours after departure:</b> Trips are automatically removed by the system <b>2 hours after their scheduled departure time</b> (as set above). For example, if you set a trip for 10:00 AM, it will be deleted at 12:00 PM. You do not need to manually delete old trips.</li>
+            <li><b>Midnight cleanup:</b> There is also a system cleanup at midnight (12:01 AM) that removes trips created before today. This means if you set a trip for 10:00 PM today, it will be considered as today’s trip and will be deleted at 12:01 AM the next day if not already deleted by the 2-hour rule.</li>
+            <li><b>Date & time logic:</b> When you set a time (e.g., 10:00 PM), the system uses today’s date and that time. If you want a trip for tomorrow, wait until tomorrow to post it.</li>
+          </ul>
         </div>
         {message && (
           <div className="text-center text-sm mt-2 text-white">{message}</div>

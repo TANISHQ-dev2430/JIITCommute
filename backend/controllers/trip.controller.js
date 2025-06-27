@@ -36,7 +36,7 @@ module.exports.getAllTrips = async (req, res) => {
     try {
        
         const trips = await Trip.find({ isActive: true })
-            .populate('host', 'fullname enrollmentNumber');
+            .populate('host', 'fullname enrollmentNumber profileImage');
         res.json({ trips });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -64,16 +64,34 @@ module.exports.getMyTrips = async (req, res) => {
 };
 module.exports.deleteTrip = async (req, res) => {
     try {
-        // Soft delete: set isActive to false and isDeleted to true
+        // Soft delete: set status to 'deleted'
         const result = await Trip.findOneAndUpdate(
             { _id: req.params.id, host: req.user._id },
-            { isActive: false, isDeleted: true, deletedAt: new Date() },
+            { isActive: false, isDeleted: true, deletedAt: new Date(), status: 'deleted' },
             { new: true }
         );
         if (!result) return res.status(404).json({ message: "Trip not found or unauthorized" });
         const ChatMessage = require('../models/chatMessage.model');
         await ChatMessage.deleteMany({ tripId: req.params.id });
         res.json({ message: "Trip deleted" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports.doneTrip = async (req, res) => {
+    try {
+        // Mark trip as done
+        const result = await Trip.findOneAndUpdate(
+            { _id: req.params.id, host: req.user._id },
+            { isActive: false, status: 'done' },
+            { new: true }
+        );
+        if (!result) return res.status(404).json({ message: "Trip not found or unauthorized" });
+        // Delete all chat messages for this trip
+        const ChatMessage = require('../models/chatMessage.model');
+        await ChatMessage.deleteMany({ tripId: req.params.id });
+        res.json({ message: "Trip marked as done and chat deleted" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -139,7 +157,8 @@ module.exports.getJoinedTrips = async (req, res) => {
     try {
         const trips = await Trip.find({ 
             joinedUsers: req.user._id, 
-            isActive: true 
+            isActive: true, 
+            status: 'active' // Only show active trips
         })
         .populate('host', 'fullname enrollmentNumber batch mobileNo');
         res.json({ trips });
@@ -163,7 +182,8 @@ module.exports.getTripHistory = async (req, res) => {
                     ]
                 },
                 { createdAt: { $gte: fifteenDaysAgo } },
-                { _id: { $nin: hiddenTrips } }
+                { _id: { $nin: hiddenTrips } },
+                { status: { $in: ['done'] } } // Only show done trips in history
             ]
         })
         .populate('host', 'fullname enrollmentNumber batch mobileNo')

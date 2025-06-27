@@ -8,9 +8,9 @@ async function sendPushNotification(userId, notification) {
   try {
     await admin.messaging().send({
       token: user.fcmToken,
-      data: notification.data || {
-        title: notification.title,
-        body: notification.body,
+      data: {
+        title: notification.title || '',
+        body: notification.body || '',
         ...notification.data
       }
     });
