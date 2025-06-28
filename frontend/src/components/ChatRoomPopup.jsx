@@ -116,9 +116,12 @@ export default function ChatRoomPopup({ open, onClose, tripId, userId, hostName 
           ) : (
             messages.map((msg, idx) => (
               <div key={idx} className={`mb-2 flex flex-col ${msg.isSelf ? 'items-end' : 'items-start'}`}>
-                <span className="text-xs text-gray-400 mb-1">
-                  {getSenderName(msg)}
-                </span>
+                {/* Only show sender name if not self */}
+                {!msg.isSelf && (
+                  <span className="text-xs text-gray-400 mb-1">
+                    {getSenderName(msg)}
+                  </span>
+                )}
                 <div className={`rounded-2xl px-4 py-2 text-black text-base max-w-[80%] ${msg.isSelf ? 'bg-[#CCCCFF]' : 'bg-[#F6F6F6]'}`}>
                   {msg.text}
                 </div>
