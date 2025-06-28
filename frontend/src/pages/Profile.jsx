@@ -223,14 +223,16 @@ export default function Profile() {
     <div className="min-h-screen text-white px-0 pt-0 pb-20 relative font-inter" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Profile Card */}
       <div className="relative bg-[#7C7CD1] rounded-b-3xl pb-8 pt-8 px-0 flex flex-col items-center" style={{ boxShadow: '0 2px 8px #5C5C99', minHeight: 320 }}>
-        {/* Edit Profile Icon - bottom right of card */}
-        <img
-          src="/images/edit-profile.png"
-          alt="Edit Profile"
-          className="absolute bottom-4 right-4 w-12 h-12 z-20 cursor-pointer bg-white rounded-full shadow-lg p-2 border border-[#7C7CD1] hover:bg-[#f0f0ff] transition"
-          onClick={() => setEditProfileOpen(true)}
-          title="Edit Profile"
-        />
+        {/* Edit Profile Icon - bottom right of card, hide if chat or edit profile modal is open */}
+        {!(editProfileOpen || chatOpen) && (
+          <img
+            src="/images/edit-profile.png"
+            alt="Edit Profile"
+            className="absolute bottom-4 right-4 w-12 h-12 z-20 cursor-pointer bg-white rounded-full shadow-lg p-2 border border-[#7C7CD1] hover:bg-[#f0f0ff] transition"
+            onClick={() => setEditProfileOpen(true)}
+            title="Edit Profile"
+          />
+        )}
         <img
           src="/images/back.png"
           alt="Back"
