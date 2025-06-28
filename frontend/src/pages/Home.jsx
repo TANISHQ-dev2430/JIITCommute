@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showTripJoinedSuccessToast, showTripAlreadyJoinedToast } from "../utils/toast";
 import BottomNav from "../components/BottomNav";
+import PageLoader from "../components/PageLoader";
 import { API_BASE_URL } from '../utils/api';
 
 export default function Home() {
@@ -10,6 +11,8 @@ export default function Home() {
   const [selectedSector, setSelectedSector] = useState("62");
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Loader for only the trip section
+  const [tripsLoading, setTripsLoading] = useState(false);
   const [myId, setMyId] = useState(null);
   const [user, setUser] = useState(null);
   const path = window.location.pathname;
@@ -40,7 +43,7 @@ useEffect(() => {
   const filteredTrips = trips.filter(
     (trip) =>
       trip.destination === selectedSector &&
-      trip.isActive !== false
+      trip.status === 'active'
   );
 
   const isUserHosting = trips.some((trip) => trip.host?._id === myId);
@@ -136,23 +139,23 @@ useEffect(() => {
       </div>
 
       {/* Sticky Available Trips Heading */}
-      <div className="sticky top-[152px] z-20 bg-[#1A1A1A] bg-opacity-90 backdrop-blur px-6 pt-2 pb-2 flex items-center justify-between">
+      <div className="sticky top-[152px] z-20 bg-[#1B1B1B] bg-opacity-90 backdrop-blur px-6 pt-2 pb-2 flex items-center justify-between">
         <h1 className="text-white text-2xl font-normal">Available Trips Today</h1>
         <button
-          className="bg-[#505081] text-white px-4 py-1 rounded-full font-semibold text-base ml-4"
+          className="text-white px-1 py-1 rounded-full font-semibold text-base ml-2"
           onClick={() => {
-            setLoading(true);
+            setTripsLoading(true);
             axios
               .get(`${API_BASE_URL}/trips/all`, { withCredentials: true })
               .then((res) => {
                 setTrips(res.data.trips || []);
-                setLoading(false);
+                setTripsLoading(false);
               })
-              .catch(() => setLoading(false));
+              .catch(() => setTripsLoading(false));
           }}
           title="Refresh trips"
         >
-          Refresh
+          <img src="/images/refresh.png" className="w-5 h-5" alt="Refresh" />
         </button>
       </div>
 
@@ -164,14 +167,16 @@ useEffect(() => {
           maxHeight: "calc(100vh - 230px)"
         }}
       >
-        {loading ? (
-          <div className="text-white text-center mt-8">Loading...</div>
+        {tripsLoading ? (
+          <PageLoader />
         ) : filteredTrips.length === 0 ? (
           <div className="text-white text-center mt-8">No trips available.</div>
         ) : (
           filteredTrips.map((trip) => {
             const isHost = myId === trip.host?._id;
-            const hasJoined = trip.joinedUsers?.some(u => u._id === myId);
+            const hasJoined = Array.isArray(trip.joinedUsers)
+  ? trip.joinedUsers.some(u => (typeof u === 'object' ? u._id === myId : u === myId))
+  : false;
             const seatsLeft = trip.seats - (trip.joinedUsers?.length || 0);
             const isFilled = seatsLeft <= 0;
             const canViewProfile = isHost || hasJoined;
@@ -183,7 +188,13 @@ useEffect(() => {
               >
                 {/* Timeline icon */}
                 <div className="flex flex-col items-center mr-3">
-                  <span className="w-2 h-2 bg-black rounded-full mb-1"></span>
+                  <span className="w-10 h-10 rounded-full mb-1">
+                    <img
+                      src={trip.host?.profileImage ? trip.host.profileImage : "/images/avatar.png"}
+                      className="w-full h-full object-cover rounded-full bg-[#1b1b1b]"
+                      alt="Host profile"
+                    />
+                  </span>
                   <span className="w-1 h-16 bg-black rounded-full"></span>
                   <span className="w-2 h-2 bg-black rounded-full mt-1"></span>
                 </div>
@@ -200,7 +211,7 @@ useEffect(() => {
                     Vacant seat: {isFilled ? "0" : seatsLeft}
                   </p>
                   <p className="text-sm text-black mb-1">
-                    Fare: {trip.fare} Rs
+                    Fare: {trip.fare && trip.fare > 0 ? `${trip.fare} Rs` : "to be updated!"}
                   </p>
                 </div>
                 <div className="ml-auto flex items-center">
