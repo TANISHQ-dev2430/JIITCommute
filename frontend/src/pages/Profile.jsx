@@ -22,6 +22,9 @@ export default function Profile() {
   const [editMobile, setEditMobile] = useState("");
   const fileInputRef = useRef();
 
+  // Section loader for trips only
+  const [tripsLoading, setTripsLoading] = useState(false);
+
   useEffect(() => {
     axios.get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
       .then((res) => {
@@ -133,12 +136,18 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <PageLoader />;
-
-  return (
+  if (loading) return (
     <div className="min-h-screen text-white px-0 pt-0 pb-20 relative font-inter" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Profile Card */}
       <div className="relative bg-[#7C7CD1] rounded-b-3xl pb-8 pt-8 px-0 flex flex-col items-center" style={{ boxShadow: '0 2px 8px #5C5C99', minHeight: 320 }}>
+        {/* Edit Profile Icon - bottom right of card */}
+        <img
+          src="/images/edit-profile.png"
+          alt="Edit Profile"
+          className="absolute bottom-4 right-4 w-12 h-12 z-20 cursor-pointer bg-white rounded-full shadow-lg p-2 border border-[#7C7CD1] hover:bg-[#f0f0ff] transition"
+          onClick={() => setEditProfileOpen(true)}
+          title="Edit Profile"
+        />
         <img
           src="/images/back.png"
           alt="Back"
@@ -188,6 +197,90 @@ export default function Profile() {
         <div className="text-2xl font-bold text-white mb-1">{user?.enrollmentNumber}</div>
         <div className="text-gray-200 text-base">Mob no.</div>
         <div className="text-2xl font-bold text-white">{user?.mobileNo}</div>
+        
+      </div>
+      {/* Active Trips Section */}
+      <div className="px-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold mt-6 mb-2">Active Trips</h2>
+          <button
+            className="text-white px-4 py-1 rounded-full font-semibold text-base ml-4 mt-6 mb-2"
+            disabled
+            title="Refresh active trips"
+          >
+            <img src="/images/refresh.png" className="w-5 h-5" alt="Refresh" />
+          </button>
+        </div>
+        <div className="flex justify-center items-center py-8">
+          <PageLoader />
+        </div>
+      </div>
+      <BottomNav />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen text-white px-0 pt-0 pb-20 relative font-inter" style={{ fontFamily: "Inter, sans-serif" }}>
+      {/* Profile Card */}
+      <div className="relative bg-[#7C7CD1] rounded-b-3xl pb-8 pt-8 px-0 flex flex-col items-center" style={{ boxShadow: '0 2px 8px #5C5C99', minHeight: 320 }}>
+        {/* Edit Profile Icon - bottom right of card */}
+        <img
+          src="/images/edit-profile.png"
+          alt="Edit Profile"
+          className="absolute bottom-4 right-4 w-12 h-12 z-20 cursor-pointer bg-white rounded-full shadow-lg p-2 border border-[#7C7CD1] hover:bg-[#f0f0ff] transition"
+          onClick={() => setEditProfileOpen(true)}
+          title="Edit Profile"
+        />
+        <img
+          src="/images/back.png"
+          alt="Back"
+          onClick={() => navigate("/home")}
+          className="absolute top-5 left-5 w-8 h-8 cursor-pointer"
+        />
+        <img
+          src="/images/logout.png"
+          alt="Logout"
+          onClick={handleLogout}
+          className="absolute top-5 right-5 w-9 h-9 cursor-pointer"
+        />
+        <div className="relative w-24 h-24 mt-2 mb-2">
+          {user?.profileImage ? (
+            <img
+              src={user.profileImage}
+              alt="Profile"
+              className="w-24 h-24 rounded-full bg-[#292966] object-cover"
+            />
+          ) : (
+            <img
+              src="/images/avatar.png"
+              alt="Profile"
+              className="w-24 h-24 rounded-full bg-[#292966] object-cover"
+            />
+          )}
+          <button
+            className="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow-md hover:bg-gray-200 transition"
+            style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={() => fileInputRef.current.click()}
+            title="Change profile picture"
+            type="button"
+          >
+            <img src="/images/camera.png" alt="Upload" className="w-6 h-6" />
+          </button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleImageChange}
+          />
+        </div>
+        <div className="text-gray-200 text-base mt-2">Name</div>
+        <div className="text-2xl font-bold text-white mb-1">{user?.fullname?.firstname} {user?.fullname?.lastname}</div>
+        <div className="text-gray-200 text-base">Enroll</div>
+        <div className="text-2xl font-bold text-white mb-1">{user?.enrollmentNumber}</div>
+        <div className="text-gray-200 text-base">Mob no.</div>
+        <div className="text-2xl font-bold text-white">{user?.mobileNo}</div>
+        
       </div>
       {/* Active Trips Section */}
       <div className="px-4">
@@ -196,24 +289,29 @@ export default function Profile() {
           <button
             className="text-white px-4 py-1 rounded-full font-semibold text-base ml-4 mt-6 mb-2"
             onClick={() => {
-              setLoading(true);
-              axios.get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
-                .then((res) => setUser(res.data.user))
-                .catch(() => setUser(null));
-              axios.get(`${API_BASE_URL}/trips/my`, { withCredentials: true })
-                .then((res) => setTrips(res.data.trips || []))
-                .catch(() => setTrips([]));
-              axios.get(`${API_BASE_URL}/trips/joined`, { withCredentials: true })
-                .then((res) => setJoinedTrips(res.data.trips || []))
-                .catch(() => setJoinedTrips([]))
-                .finally(() => setLoading(false));
+              setTripsLoading(true);
+              Promise.all([
+                axios.get(`${API_BASE_URL}/users/profile`, { withCredentials: true })
+                  .then((res) => setUser(res.data.user))
+                  .catch(() => setUser(null)),
+                axios.get(`${API_BASE_URL}/trips/my`, { withCredentials: true })
+                  .then((res) => setTrips(res.data.trips || []))
+                  .catch(() => setTrips([])),
+                axios.get(`${API_BASE_URL}/trips/joined`, { withCredentials: true })
+                  .then((res) => setJoinedTrips(res.data.trips || []))
+                  .catch(() => setJoinedTrips([])),
+              ]).finally(() => setTripsLoading(false));
             }}
             title="Refresh active trips"
           >
             <img src="/images/refresh.png" className="w-5 h-5" alt="Refresh" />
           </button>
         </div>
-        {trips.length === 0 && joinedTrips.length === 0 ? (
+        {tripsLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <PageLoader />
+          </div>
+        ) : trips.length === 0 && joinedTrips.length === 0 ? (
           <div>No active trips.</div>
         ) : (
           <>
@@ -360,13 +458,7 @@ export default function Profile() {
         }
         activeChatTrip={activeChatTrip}
       />
-      <img
-        src="/images/edit-profile.png"
-        alt="Edit Profile"
-        className="fixed top-75 right-6 w-12 h-12 z-50 cursor-pointer bg-white rounded-full shadow-lg p-2 border border-[#7C7CD1] hover:bg-[#f0f0ff] transition"
-        onClick={() => setEditProfileOpen(true)}
-        title="Edit Profile"
-      />
+      
       {editProfileOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
@@ -378,7 +470,7 @@ export default function Profile() {
           <div
             className="bg-[#212427] rounded-t-2xl p-6 w-full max-w-md shadow-xl relative animate-slideUp"
             style={{ minHeight: 340, backdropFilter: 'blur(10px)' }}
-            onClick={e => e.stopPropagation()} // Prevent modal click from closing
+            onClick={e => e.stopPropagation()} 
           >
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl"
