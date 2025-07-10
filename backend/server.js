@@ -106,24 +106,7 @@ cron.schedule('1 0 * * *', async () => {
 cron.schedule('0 0 * * *', async () => {
   const fifteenDaysAgo = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000);
   await Trip.deleteMany({ createdAt: { $lt: fifteenDaysAgo } });
-  
-});
-
-// 🕑 Every 10 minutes: mark trips as deleted if 2 hours past departure time
-cron.schedule('*/10 * * * *', async () => {
-  try {
-    const now = new Date();
-    // 2 hours ago
-    const cutoff = new Date(now.getTime() - 2 * 60 * 60 * 1000);
-    // Find trips where departure time is more than 2 hours ago and not already deleted
-    const result = await Trip.updateMany(
-      { isDeleted: false, isActive: true, time: { $lt: cutoff } },
-      { isDeleted: true, deletedAt: now, isActive: false, status: 'deleted' }
-    );
-    // console.log(`[CRON] 2hr post-departure trip soft delete: ${result.modifiedCount || result.nModified || 0} trips marked as deleted at ${now.toLocaleString()}`);
-  } catch (err) {
-    console.error('Error in 2hr post-departure trip soft delete:', err);
-  }
+  console.log('Old trips deleted (older than 15 days)');
 });
 
 server.listen(port, () => { 

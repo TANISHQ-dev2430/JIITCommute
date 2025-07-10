@@ -2,26 +2,28 @@ const User = require('../models/user.model');
 const BlacklistToken = require('../models/blacklistToken.model'); 
 const jwt = require('jsonwebtoken');
 module.exports.createUser = async ({ 
-    firstname, lastname, enrollmentNumber, batch, mobileNo, password
+    firstname, lastname, enrollmentNumber, email, mobileNo, password, emailVerified
 }) => { 
-    if (!firstname || !enrollmentNumber || !batch || !mobileNo || !password) {
-        throw new Error('First name, enrollment number, batch, mobile number, and password are required');
+    if (!firstname || !enrollmentNumber || !email || !mobileNo || !password) {
+        throw new Error('First name, enrollment number, email, mobile number, and password are required');
     }
 
     const user = await User.create({
         fullname: { firstname, lastname },
         enrollmentNumber,
-        batch,
+        email,
         mobileNo,
-        password
+        password,
+        emailVerified: !!emailVerified
     });
 
     return {
         _id: user._id,
         enrollmentNumber: user.enrollmentNumber,
         fullname: user.fullname,
-        batch: user.batch,
-        mobileNo: user.mobileNo
+        email: user.email,
+        mobileNo: user.mobileNo,
+        emailVerified: user.emailVerified
     };
 };
 

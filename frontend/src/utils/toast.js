@@ -132,3 +132,29 @@ export function showTripAlreadyJoinedToast() {
     progress: undefined,
   });
 }
+
+export function showVerifyEmailToast() {
+  toast.error('Please verify your college email before hosting a trip.', {
+    position: 'top-center',
+    autoClose: 2000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: false,
+    style: {
+      background: '#373535',
+      color: '#fff',
+      fontWeight: 500,
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '0.95rem',
+      minWidth: 0,
+      maxWidth: 260,
+      padding: '10px 18px',
+      borderRadius: 12,
+      marginTop: '10px',
+      marginRight: '10px',
+    },
+    icon: false,
+    progress: undefined,
+  });
+}

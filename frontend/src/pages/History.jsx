@@ -48,9 +48,6 @@ export default function History() {
     
     }
   };
-
-  // Removed the Done button from history page
-
   function to12Hour(timeStr, fallback) {
     if (!timeStr) {
       if (fallback) return to12Hour(fallback);
@@ -133,12 +130,6 @@ export default function History() {
                       Deleted/Cancelled
                     </span>
                   )}
-                  {/* Only show the Done label if trip.status === 'done' */}
-                  {trip.status === 'done' && (
-                    <span className="inline-block bg-green-600 text-white text-xs px-3 py-1 ml-2 rounded-full mt-1">
-                      Done
-                    </span>
-                  )}
                 </div>
               {!hasJoined && isHost && (
                 <div className="w-full flex justify-center">
@@ -148,16 +139,17 @@ export default function History() {
                       try {
                         const { time, fare, seats, destination } = trip;
                         await axios.post(
-                          `${API_BASE_URL}/trips`,
-                          { time, fare, seats, destination },
+                          `${API_BASE_URL}/trips/${trip._id}/join`,
+                          {},
                           { withCredentials: true }
                         );
                         showTripCreatedToast();
                         setTimeout(() => navigate("/home"), 2000);
                       } catch (err) {
-                        if (err?.response?.data?.message?.toLowerCase().includes('active trip')) {
+                        if (err?.response?.data?.message?.includes('active trip')) {
                           showTripAlreadyActiveToast();
                         }
+                        
                       }
                     }}
                     title="Recreate Trip"

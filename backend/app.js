@@ -9,7 +9,6 @@ const cookieParser = require('cookie-parser');
 const tripRoutes = require('./routes/trip.route');
 const cron = require('node-cron');
 const Trip = require('./models/trip.model'); 
-const path = require('path');
 
 connectToDb();
 
@@ -33,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser());
 app.use('/trips', tripRoutes);
-app.use('/uploads/profileImages', express.static(path.join(__dirname, 'uploads/profileImages')));
+
 
 
 cron.schedule('*/10 * * * *', async () => {

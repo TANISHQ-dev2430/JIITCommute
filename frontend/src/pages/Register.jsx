@@ -3,26 +3,43 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { API_BASE_URL } from '../utils/api';
+import EmailOtpPopup from '../components/EmailOtpPopup';
 
 export default function Register() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    batch: "",
+    email: "",
     enrollment: "",
     mobile: "",
     password: "",
   });
   const [message, setMessage] = useState("");
+  const [emailOtpPopupOpen, setEmailOtpPopupOpen] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "email") setEmailVerified(false);
+  };
+
+  const validateEmail = (email) => {
+    // Only allow @mail.jiit.ac.in domain
+    return /^([a-zA-Z0-9._%+-]+)@mail\.jiit\.ac\.in$/.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+    if (!validateEmail(formData.email)) {
+      setMessage("Please enter a valid JIIT college email (@mail.jiit.ac.in)");
+      return;
+    }
+    if (!emailVerified) {
+      setMessage("Please verify your college email before registering.");
+      return;
+    }
     try {
       await axios.post(
         `${API_BASE_URL}/users/register`,
@@ -31,7 +48,7 @@ export default function Register() {
             firstname: formData.firstName,
             lastname: formData.lastName,
           },
-          batch: formData.batch,
+          email: formData.email,
           enrollmentNumber: formData.enrollment,
           mobileNo: formData.mobile,
           password: formData.password,
@@ -90,24 +107,36 @@ export default function Register() {
           </div>
         </div>
         <div>
+          <label className="block text-white text-lg mb-1">College Email</label>
+          <div className="flex gap-2 items-center">
+            <input
+              type="email"
+              name="email"
+              placeholder="e.g. Enrollment@mail.jiit.ac.in"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-[#232222] text-white rounded-2xl text-base focus:outline-none"
+              required
+              pattern="^[a-zA-Z0-9._%+-]+@mail\.jiit\.ac\.in$"
+              title="Please enter a valid JIIT college email (@mail.jiit.ac.in)"
+            />
+            <button
+              type="button"
+              className={`px-4 py-2 rounded-lg text-white font-semibold ${emailVerified ? 'bg-green-600' : 'bg-[#7B4AE2] hover:bg-[#B983FF]'}`}
+              onClick={() => setEmailOtpPopupOpen(true)}
+              disabled={!formData.email || !validateEmail(formData.email) || emailVerified}
+            >
+              {emailVerified ? 'Verified' : 'Verify'}
+            </button>
+          </div>
+        </div>
+        <div>
           <label className="block text-white text-lg mb-1">Enrollment Number</label>
           <input
             type="text"
             name="enrollment"
-            placeholder="Enrollment Number"
+            placeholder="eg. 23103177"
             value={formData.enrollment}
-            onChange={handleChange}
-            className="w-full px-4 py-3 bg-[#232222] text-white rounded-2xl text-base focus:outline-none"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-white text-lg mb-1">Batch</label>
-          <input
-            type="text"
-            name="batch"
-            placeholder="Batch"
-            value={formData.batch}
             onChange={handleChange}
             className="w-full px-4 py-3 bg-[#232222] text-white rounded-2xl text-base focus:outline-none"
             required
@@ -123,6 +152,7 @@ export default function Register() {
             onChange={handleChange}
             className="w-full px-4 py-3 bg-[#232222] text-white rounded-2xl text-base focus:outline-none"
             required
+            maxLength={10}
           />
         </div>
         <div>
@@ -157,6 +187,17 @@ export default function Register() {
           REGISTER
         </button>
       </form>
+      {emailOtpPopupOpen && (
+        <EmailOtpPopup
+          email={formData.email}
+          onClose={() => setEmailOtpPopupOpen(false)}
+          onVerified={() => {
+            setEmailVerified(true);
+            setEmailOtpPopupOpen(false);
+            setMessage("");
+          }}
+        />
+      )}
     </div>
   );
 }

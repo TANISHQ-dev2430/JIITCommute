@@ -37,7 +37,7 @@ export default function App() {
       onMessage(messaging, (() => {
         let lastChatMsgId = null;
         return (payload) => {
-          
+          console.log("[FCM] Received payload", payload);
           const userStr = localStorage.getItem("user");
           let currentUserId = null;
           try {
@@ -46,55 +46,26 @@ export default function App() {
               currentUserId = userObj._id || userObj.id;
             }
           } catch (e) {}
-          // Host: show toast only (for trip notifications, use data payload)
+          // Host: show toast only
           if (
             payload.data &&
             payload.data.hostId &&
             currentUserId &&
             payload.data.hostId === currentUserId &&
-            (payload.data.title === "New Join Request" || payload.data.title === "Join Cancelled")
+            (payload.notification.title === "New Join Request" || payload.notification.title === "Join Cancelled")
           ) {
             toast.info(
-              `${payload.data.title}: ${payload.data.body}`,
+              `${payload.notification.title}: ${payload.notification.body}`,
               { autoClose: 4000, className: "customtoast" }
             );
-            return;
           }
           if (
             payload.data &&
             payload.data.event === "removedFromTrip"
           ) {
             toast.info(
-              `Removed from Trip: ${payload.data.body}`,
-              { autoClose: 2000, className: "customtoast" }
-            );
-            return;
-          }
-          // For all other notifications, prefer data payload if present
-          if (
-            payload.data &&
-            typeof payload.data.title === 'string' &&
-            typeof payload.data.body === 'string' &&
-            payload.data.title.trim() &&
-            payload.data.body.trim()
-          ) {
-            toast.info(
-              `${payload.data.title}: ${payload.data.body}`,
-              { autoClose: 2000, className: "customtoast" }
-            );
-            return;
-          }
-          // Fallback to notification payload (for chat or legacy)
-          if (
-            payload.notification &&
-            typeof payload.notification.title === 'string' &&
-            typeof payload.notification.body === 'string' &&
-            payload.notification.title.trim() &&
-            payload.notification.body.trim()
-          ) {
-            toast.info(
               `${payload.notification.title}: ${payload.notification.body}`,
-              { autoClose: 2000, className: "customtoast" }
+              { autoClose: 4000, className: "customtoast" }
             );
           }
         };

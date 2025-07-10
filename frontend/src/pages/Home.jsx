@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showTripJoinedSuccessToast, showTripAlreadyJoinedToast } from "../utils/toast";
+import { showVerifyEmailToast } from "../utils/toast";
 import BottomNav from "../components/BottomNav";
 import PageLoader from "../components/PageLoader";
 import { API_BASE_URL } from '../utils/api';
@@ -105,7 +106,13 @@ useEffect(() => {
           </div>
         </div>
         <button
-          onClick={() => navigate("/host")}
+          onClick={() => {
+            if (!user?.emailVerified) {
+              showVerifyEmailToast();
+              return;
+            }
+            navigate("/host");
+          }}
           className="bg-transparent text-white text-3xl font-bold"
         >
           <span className="inline-block w-8 h-17 rounded-full flex items-center justify-center">

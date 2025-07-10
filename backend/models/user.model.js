@@ -17,16 +17,22 @@ const userSchema = new mongoose.Schema({
       message: 'Enrollment number must not more than 15 digits',
     },
   },
-  batch: {
+  email: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
     validate: {
       validator: function (value) {
-        return /^[A-Za-z][A-Za-z0-9]{1,9}$/.test(value); 
+        // Only allow college email domain (e.g., @mail.jiit.ac.in)
+        return /@mail\.jiit\.ac\.in$/.test(value);
       },
-      message: 'Batch must start with an alphabet followed by up to 9 alphanumeric characters',
+      message: 'Email must be a valid college email (e.g., ...@jiit.ac.in)',
     },
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
   },
   mobileNo: {
     type: String,
@@ -46,10 +52,6 @@ const userSchema = new mongoose.Schema({
   },
   hiddenTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }],
   fcmToken: {
-    type: String,
-    default: null,
-  },
-  profileImage: {
     type: String,
     default: null,
   }

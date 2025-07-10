@@ -5,6 +5,7 @@ import { showTripDeletedToast, showTripAlreadyActiveToast } from '../utils/toast
 import BottomNav from "../components/BottomNav";
 import ChatRoomPopup from "../components/ChatRoomPopup";
 import PageLoader from "../components/PageLoader";
+import EmailOtpPopup from "../components/EmailOtpPopup";
 import { API_BASE_URL } from '../utils/api';
 import "../animate-slideUp.css";
 
@@ -20,6 +21,10 @@ export default function Profile() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editMobile, setEditMobile] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailOtpPopupOpen, setEmailOtpPopupOpen] = useState(false);
+  const [editMessage, setEditMessage] = useState("");
   const fileInputRef = useRef();
 
   // Section loader for trips only
@@ -31,6 +36,8 @@ export default function Profile() {
         setUser(res.data.user);
         setEditName(`${res.data.user.fullname.firstname} ${res.data.user.fullname.lastname}`);
         setEditMobile(res.data.user.mobileNo);
+        setEditEmail(res.data.user.email || "");
+        setEmailVerified(res.data.user.emailVerified || false);
       })
       .catch(() => setUser(null));
     axios.get(`${API_BASE_URL}/trips/my`, { withCredentials: true })
@@ -101,24 +108,39 @@ export default function Profile() {
     }
   };
 
+  const validateEmail = (email) => {
+    return /^([a-zA-Z0-9._%+-]+)@mail\.jiit\.ac\.in$/.test(email);
+  };
+
   const handleEditProfileSubmit = async (e) => {
     e.preventDefault();
+    setEditMessage("");
     const [firstname, ...lastnameArr] = editName.trim().split(" ");
     const lastname = lastnameArr.join(" ");
+    if (!validateEmail(editEmail)) {
+      setEditMessage("Please enter a valid JIIT college email (@mail.jiit.ac.in)");
+      return;
+    }
+    if (!emailVerified) {
+      setEditMessage("Please verify your college email before saving.");
+      return;
+    }
     try {
       await axios.patch(
         `${API_BASE_URL}/users/profile`,
-        { fullname: { firstname, lastname }, mobileNo: editMobile },
+        { fullname: { firstname, lastname }, mobileNo: editMobile, email: editEmail },
         { withCredentials: true }
       );
       setUser((prev) => ({
         ...prev,
         fullname: { firstname, lastname },
         mobileNo: editMobile,
+        email: editEmail,
+        emailVerified: true,
       }));
       setEditProfileOpen(false);
     } catch (err) {
-      alert("Failed to update profile. Please try again.");
+      setEditMessage("Failed to update profile. Please try again.");
     }
   };
 
@@ -506,6 +528,28 @@ export default function Profile() {
                   required
                 />
               </label>
+              <label className="flex flex-col gap-1 font-semibold text-white">
+                College Email
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="email"
+                    value={editEmail}
+                    onChange={e => { setEditEmail(e.target.value); setEmailVerified(false); }}
+                    className="border rounded-[10px] px-3 py-2 text-white w-full"
+                    placeholder="College Email (e.g. yourname@mail.jiit.ac.in)"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className={`px-4 py-2 rounded-lg text-white font-semibold ${emailVerified ? 'bg-green-600' : 'bg-[#7B4AE2] hover:bg-[#B983FF]'}`}
+                    onClick={() => setEmailOtpPopupOpen(true)}
+                    disabled={!editEmail || !validateEmail(editEmail) || emailVerified}
+                  >
+                    {emailVerified ? 'Verified' : 'Verify'}
+                  </button>
+                </div>
+              </label>
+              {editMessage && <div className="text-center text-red-400 text-sm">{editMessage}</div>}
               <button
                 type="button"
                 className="bg-[#CC3260] text-white rounded-[10px] px-4 py-2 font-semibold mt-2"
@@ -520,6 +564,17 @@ export default function Profile() {
                 Save Changes
               </button>
             </form>
+            {emailOtpPopupOpen && (
+              <EmailOtpPopup
+                email={editEmail}
+                onClose={() => setEmailOtpPopupOpen(false)}
+                onVerified={() => {
+                  setEmailVerified(true);
+                  setEmailOtpPopupOpen(false);
+                  setEditMessage("");
+                }}
+              />
+            )}
           </div>
         </div>
       )}

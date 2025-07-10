@@ -6,12 +6,11 @@ const tripSchema = new mongoose.Schema({
     time: { type: Date, required: true },
     fare: { type: Number, required: true, min: 0 },
     destination: { type: String, enum: ['62', '128'], required: true },
-    createdAt: { type: Date, default: Date.now }, 
+    createdAt: { type: Date, default: Date.now }, // ✅ Removed index: true
     isActive: { type: Boolean, default: true },
     joinedUsers: { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] },
     isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    status: { type: String, enum: ['active', 'done', 'deleted'], default: 'active' } // <-- Added status field
+    deletedAt: { type: Date, default: null }
 });
 
 // TTL index: Automatically delete trips 15 days (1296000 seconds) after creation
