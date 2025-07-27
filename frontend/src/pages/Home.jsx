@@ -44,7 +44,7 @@ useEffect(() => {
   const filteredTrips = trips.filter(
     (trip) =>
       trip.destination === selectedSector &&
-      trip.status === 'active'
+      trip.isActive // Corrected from trip.status === 'active' to trip.isActive
   );
 
   const isUserHosting = trips.some((trip) => trip.host?._id === myId);

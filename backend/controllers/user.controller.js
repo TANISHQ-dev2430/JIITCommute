@@ -2,6 +2,8 @@ const { validationResult } = require('express-validator');
 const User = require('../models/user.model');
 const userService = require('../services/user.service');
 const nodemailer = require('nodemailer');
+const cloudinary = require('cloudinary').v2;
+const { uploadImageStream } = require('../services/cloudinary');
 
 const emailOtpStore = {};
 
@@ -14,6 +16,13 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+});
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 async function sendMail(to, subject, text) {
@@ -112,7 +121,17 @@ module.exports.updateUserProfile = async (req, res) => {
             updates['emailVerified'] = true;
             delete emailOtpStore[req.body.email];
         }
-        if (req.body.removeProfileImage) updates['profileImage'] = null;
+        if (req.body.removeProfileImage) {
+            updates['profileImage'] = null;
+        } else if (req.file) {
+            // Handle profile image upload
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'profile_images',
+                public_id: `user_${req.user._id}`,
+                overwrite: true,
+            });
+            updates['profileImage'] = result.secure_url;
+        }
         const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
         res.status(200).json({ user });
     } catch (err) {
@@ -193,4 +212,31 @@ module.exports.verifyEmailOtp = async (req, res) => {
   }
   emailOtpStore[email].verified = true;
   res.status(200).json({ message: 'Email verified' });
+};
+
+module.exports.uploadProfileImage = async (req, res) => {
+    try {
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file provided' });
+        }
+
+        // Upload image to Cloudinary using stream
+        const result = await uploadImageStream(req.file.buffer);
+
+        // Update user's profile image
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { profileImage: result.secure_url },
+            { new: true }
+        );
+
+        res.status(200).json({ message: 'Profile image uploaded successfully', profileImage: user.profileImage });
+    } catch (err) {
+        console.error('Error uploading profile image:', err);
+        res.status(500).json({ message: 'Failed to upload profile image', error: err.message });
+    }
 };

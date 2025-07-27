@@ -20,6 +20,7 @@
     "express-validator": "^7.2.1",
     "firebase": "^11.9.1",
     "firebase-admin": "^13.4.0",
+    "jsjiit": "^0.0.21",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "multer": "^2.0.1",

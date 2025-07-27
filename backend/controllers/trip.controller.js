@@ -36,7 +36,7 @@ module.exports.getAllTrips = async (req, res) => {
     try {
        
         const trips = await Trip.find({ isActive: true })
-            .populate('host', 'fullname enrollmentNumber');
+            .populate('host', 'fullname enrollmentNumber profileImage');
         res.json({ trips });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -213,5 +213,24 @@ module.exports.deleteTripHistory = async (req, res) => {
         res.json({ message: "Trip removed from your history" });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+};
+module.exports.markTripAsDone = async (req, res) => {
+    try {
+        const trip = await Trip.findById(req.params.id);
+        if (!trip) {
+            return res.status(404).json({ message: "Trip not found" });
+        }
+
+        if (trip.host.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Unauthorized to mark this trip as done" });
+        }
+
+        trip.isActive = false;
+        await trip.save();
+
+        res.status(200).json({ message: "Trip marked as done", trip });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

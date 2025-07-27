@@ -7,6 +7,7 @@ export default function Login() {
   const [enrollment, setEnrollment] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -59,16 +60,22 @@ export default function Login() {
           />
         </div>
 
-        <div>
+        <div className="relative">
           <label className="block text-gray-300 mb-1">Password</label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="*******"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 bg-[#373535] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+          <span
+            className="absolute right-3 top-9 cursor-pointer text-gray-400 hover:text-white"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </span>
         </div>
 
         {message && (

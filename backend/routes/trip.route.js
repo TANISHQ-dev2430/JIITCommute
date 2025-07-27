@@ -15,6 +15,7 @@ router.get('/joined', authMiddleware, tripController.getJoinedTrips); // Get tri
 router.get('/history', authMiddleware, tripController.getTripHistory); // Get trip history (hosted or joined, last 15 days)
 router.delete('/history/:id',authMiddleware, tripController.deleteTripHistory);
 router.patch('/:id/remove-user', authMiddleware, tripController.removeUserFromTrip); // Host removes a joined user
+router.patch('/done/:id', authMiddleware, tripController.markTripAsDone);
 router.get('/:tripId/chat', async (req, res) => {
   const { tripId } = req.params;
   const messages = await chatMessage.find({ tripId }).populate('sender', 'fullname');

@@ -1,8 +1,17 @@
 import { useNavigate } from "react-router-dom";
 
 export default function About() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-start bg-cover bg-center font-inter px-4 py-10" style={{ backgroundImage: "url('/images/about-bg.png')", fontFamily: "'Inter', Helvetica, Arial, sans-serif" }}>
+      <img
+        src="/images/back.png"
+        alt="Back"
+        onClick={() => navigate(-1)}
+        className="absolute top-5 left-5 w-8 h-8 cursor-pointer"
+        title="Go Back"
+      />
       {/* Overview Section */}
       <div className="w-full max-w-2xl mx-auto mb-8">
         <h2 className="text-white text-lg font-semibold mb-4 text-center">Overview</h2>

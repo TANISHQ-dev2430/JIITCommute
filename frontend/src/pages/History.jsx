@@ -130,6 +130,11 @@ export default function History() {
                       Deleted/Cancelled
                     </span>
                   )}
+                  {!trip.isActive && !trip.isDeleted && (
+                    <span className="inline-block bg-[#4CAF50] text-white text-xs px-3 py-1 rounded-full mt-1">
+                      Completed
+                    </span>
+                  )}
                 </div>
               {!hasJoined && isHost && (
                 <div className="w-full flex justify-center">

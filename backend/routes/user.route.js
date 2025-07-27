@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require('express-validator');
 const userController = require('../controllers/user.controller');
 const authMiddleware = require('../middlewares/authMiddleware'); 
+const multerProfileImage = require('../middlewares/multerProfileImage');
 
 // Email OTP endpoints
 router.post('/send-email-otp', userController.sendEmailOtp);
@@ -23,8 +24,11 @@ router.post('/login', [
 
 router.get('/profile', authMiddleware, userController.getUserProfile);
 
-// PATCH for profile update (including email)
-router.patch('/profile', authMiddleware, userController.updateUserProfile);
+// PATCH for profile update (including email and profile image)
+router.patch('/profile', authMiddleware, multerProfileImage, userController.updateUserProfile);
+
+// POST for profile image upload
+router.post('/profile/image', authMiddleware, multerProfileImage, userController.uploadProfileImage);
 
 router.post('/logout', authMiddleware, userController.logoutUser);
 

@@ -54,7 +54,8 @@ const userSchema = new mongoose.Schema({
   fcmToken: {
     type: String,
     default: null,
-  }
+  },
+  profileImage: { type: String, default: null },
 });
 
 userSchema.pre('save', async function (next) {
